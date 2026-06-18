@@ -1,92 +1,71 @@
 """
-Тесты для модуля processing.
+Тесты для модуля processing с использованием фикстур и параметризации.
 """
 
-from typing import Any, Dict, List, Union
-
+import pytest
 from src.processing import filter_by_state, sort_by_date
 
 
-def test_filter_by_state_default() -> None:
-    """Тестирует фильтрацию по умолчанию (EXECUTED)."""
-    test_data: List[Dict[str, Union[str, int]]] = [
-        {'id': 1, 'state': 'EXECUTED', 'date': '2023-01-01'},
-        {'id': 2, 'state': 'CANCELED', 'date': '2023-01-02'},
-        {'id': 3, 'state': 'EXECUTED', 'date': '2023-01-03'},
-    ]
+class TestFilterByState:
+    """Тесты для функции filter_by_state."""
 
-    expected: List[Dict[str, Union[str, int]]] = [
-        {'id': 1, 'state': 'EXECUTED', 'date': '2023-01-01'},
-        {'id': 3, 'state': 'EXECUTED', 'date': '2023-01-03'},
-    ]
+    @pytest.mark.parametrize(
+        "state, expected_count",
+        [("EXECUTED", 3), ("CANCELED", 2)]
+    )
+    def test_filter_by_state(
+            self,
+            operations_list: list,
+            state: str,
+            expected_count: int
+    ) -> None:
+        """Тестирует фильтрацию по статусу."""
+        result = filter_by_state(operations_list, state)
+        assert len(result) == expected_count
+        assert all(op["state"] == state for op in result)
 
-    result = filter_by_state(test_data)
-    assert result == expected
+    def test_filter_by_state_default(self, operations_list: list) -> None:
+        """Тестирует фильтрацию со статусом по умолчанию."""
+        result = filter_by_state(operations_list)
+        assert len(result) == 3
+        assert all(op["state"] == "EXECUTED" for op in result)
 
+    def test_filter_by_state_empty_list(self) -> None:
+        """Тестирует фильтрацию на пустом списке."""
+        result = filter_by_state([])
+        assert result == []
 
-def test_filter_by_state_canceled() -> None:
-    """Тестирует фильтрацию по статусу CANCELED."""
-    test_data: List[Dict[str, Union[str, int]]] = [
-        {'id': 1, 'state': 'EXECUTED', 'date': '2023-01-01'},
-        {'id': 2, 'state': 'CANCELED', 'date': '2023-01-02'},
-        {'id': 3, 'state': 'EXECUTED', 'date': '2023-01-03'},
-    ]
-
-    expected: List[Dict[str, Union[str, int]]] = [
-        {'id': 2, 'state': 'CANCELED', 'date': '2023-01-02'},
-    ]
-
-    result = filter_by_state(test_data, 'CANCELED')
-    assert result == expected
-
-
-def test_filter_by_state_empty() -> None:
-    """Тестирует фильтрацию на пустом списке."""
-    test_data: List[Dict[str, Union[str, int]]] = []
-    result = filter_by_state(test_data)
-    assert result == []
+    def test_filter_by_state_no_match(self, operations_list: list) -> None:
+        """Тестирует фильтрацию, когда нет совпадений."""
+        result = filter_by_state(operations_list, "PENDING")
+        assert result == []
 
 
-def test_sort_by_date_descending() -> None:
-    """Тестирует сортировку по убыванию (сначала новые)."""
-    test_data: List[Dict[str, Union[str, int]]] = [
-        {'id': 1, 'date': '2023-01-01T10:00:00'},
-        {'id': 2, 'date': '2023-01-02T08:00:00'},
-        {'id': 3, 'date': '2022-12-31T23:59:59'},
-    ]
+class TestSortByDate:
+    """Тесты для функции sort_by_date."""
 
-    result = sort_by_date(test_data)
-    assert result[0]['date'] == '2023-01-02T08:00:00'
-    assert result[1]['date'] == '2023-01-01T10:00:00'
-    assert result[2]['date'] == '2022-12-31T23:59:59'
+    def test_sort_by_date_descending(self, operations_list: list) -> None:
+        """Тестирует сортировку по убыванию (сначала новые)."""
+        result = sort_by_date(operations_list)
+        dates = [op["date"] for op in result]
+        assert dates == sorted(dates, reverse=True)
 
+    def test_sort_by_date_ascending(self, operations_list: list) -> None:
+        """Тестирует сортировку по возрастанию (сначала старые)."""
+        result = sort_by_date(operations_list, descending=False)
+        dates = [op["date"] for op in result]
+        assert dates == sorted(dates)
 
-def test_sort_by_date_ascending() -> None:
-    """Тестирует сортировку по возрастанию (сначала старые)."""
-    test_data: List[Dict[str, Union[str, int]]] = [
-        {'id': 1, 'date': '2023-01-01T10:00:00'},
-        {'id': 2, 'date': '2023-01-02T08:00:00'},
-        {'id': 3, 'date': '2022-12-31T23:59:59'},
-    ]
+    def test_sort_by_date_same_dates(self, operations_with_same_date: list) -> None:
+        """Тестирует сортировку при одинаковых датах."""
+        result = sort_by_date(operations_with_same_date)
+        assert len(result) == 3
+        for op in result:
+            assert op["date"].startswith("2024-03-01")
+        dates = [op["date"] for op in result]
+        assert dates == sorted(dates, reverse=True)
 
-    result = sort_by_date(test_data, False)
-    assert result[0]['date'] == '2022-12-31T23:59:59'
-    assert result[1]['date'] == '2023-01-01T10:00:00'
-    assert result[2]['date'] == '2023-01-02T08:00:00'
-
-
-def test_sort_by_date_empty() -> None:
-    """Тестирует сортировку на пустом списке."""
-    test_data: List[Dict[str, Union[str, int]]] = []
-    result = sort_by_date(test_data)
-    assert result == []
-
-
-if __name__ == "__main__":
-    test_filter_by_state_default()
-    test_filter_by_state_canceled()
-    test_filter_by_state_empty()
-    test_sort_by_date_descending()
-    test_sort_by_date_ascending()
-    test_sort_by_date_empty()
-    print("Все тесты для processing пройдены успешно!")
+    def test_sort_by_date_empty_list(self) -> None:
+        """Тестирует сортировку на пустом списке."""
+        result = sort_by_date([])
+        assert result == []
