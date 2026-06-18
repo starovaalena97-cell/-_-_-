@@ -59,3 +59,5 @@ if __name__ == "__main__":
     test_mask_account_card_invalid()
     test_get_date()
     print("Все тесты пройдены успешно!")
+
+# Все тесты для widget модуля
