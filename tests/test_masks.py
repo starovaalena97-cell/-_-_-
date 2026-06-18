@@ -43,3 +43,5 @@ if __name__ == "__main__":
     test_get_mask_account_short()
     test_get_mask_account_four_digits()
     print("Все тесты пройдены успешно!")
+
+    # Дополнительные тесты для masks

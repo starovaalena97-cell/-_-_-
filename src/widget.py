@@ -75,4 +75,5 @@ def get_date(date_string: str) -> str:
     # Форматируем в нужный вид
     return dt.strftime("%d.%m.%Y")
 
+
 # Версия
