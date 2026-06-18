@@ -12,3 +12,9 @@
 ```bash
 git clone https://github.com/ваш-username/banking_widget.git
 cd banking_widget
+
+## 🧪 Тестирование
+
+Проект покрыт тестами с использованием `pytest`.
+
+### Установка зависимостей для тестирования
