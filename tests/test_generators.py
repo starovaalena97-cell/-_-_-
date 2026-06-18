@@ -3,6 +3,7 @@
 """
 
 import pytest
+
 from src.generators import (
     card_number_generator,
     filter_by_currency,
@@ -130,9 +131,7 @@ class TestCardNumberGenerator:
             ),
         ],
     )
-    def test_card_number_generator(
-        self, start: int, stop: int, expected: list
-    ) -> None:
+    def test_card_number_generator(self, start: int, stop: int, expected: list) -> None:
         """Тестирует генератор номеров карт."""
         result = list(card_number_generator(start, stop))
         assert result == expected
