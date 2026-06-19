@@ -12,3 +12,7 @@
 ```bash
 git clone https://github.com/ваш-username/banking_widget.git
 cd banking_widget
+
+##  Декоратор для логирования
+
+Модуль `decorators` предоставляет декоратор `log` для автоматического логирования выполнения функций.
