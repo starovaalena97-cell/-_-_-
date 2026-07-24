@@ -2,50 +2,49 @@
 Модуль для маскировки номеров карт и счетов.
 """
 
+import re
+from src.logger_config import setup_logger
+
+logger = setup_logger(__name__, 'masks.log')
+
 
 def get_mask_card_number(card_number: str) -> str:
-    """
-    Маскирует номер банковской карты.
+    """Маскирует номер карты в формате XXXX XX** **** XXXX."""
+    if not card_number or not isinstance(card_number, str):
+        logger.error("Номер карты отсутствует или не является строкой")
+        return "Неверный номер карты"
 
-    Принимает номер карты (16 цифр) и возвращает маску
-    в формате XXXX XX** **** XXXX.
+    cleaned = re.sub(r'\s+', '', card_number)
 
-    Args:
-        card_number: Номер карты в виде строки из 16 цифр
+    if not cleaned.isdigit():
+        logger.error("Номер карты содержит не цифры")
+        return "Неверный номер карты"
 
-    Returns:
-        Замаскированный номер карты с пробелами каждые 4 цифры
+    if len(cleaned) != 16:
+        logger.error(f"Некорректная длина: {len(cleaned)} (ожидается 16)")
+        return "Неверный номер карты"
 
-    Example:
-        >>> get_mask_card_number("7000792289606361")
-        '7000 79** **** 6361'
-    """
-    if len(card_number) != 16 or not card_number.isdigit():
-        return card_number
-
-    masked = f"{card_number[:4]} {card_number[4:6]}** **** {card_number[-4:]}"
+    masked = f"{cleaned[:4]} {cleaned[4:6]}** **** {cleaned[12:]}"
+    logger.info(f"Номер карты успешно замаскирован: {masked}")
     return masked
 
 
 def get_mask_account(account_number: str) -> str:
-    """
-    Маскирует номер банковского счета.
+    """Маскирует номер счёта в формате **XXXX (последние 4 цифры)."""
+    if not account_number or not isinstance(account_number, str):
+        logger.error("Номер счёта отсутствует или не является строкой")
+        return "Неверный номер счёта"
 
-    Принимает номер счета и возвращает маску в формате **XXXX,
-    где XXXX - последние 4 цифры номера.
+    cleaned = re.sub(r'\s+', '', account_number)
 
-    Args:
-        account_number: Номер счета в виде строки
+    if not cleaned.isdigit():
+        logger.error("Номер счёта содержит не цифры")
+        return "Неверный номер счёта"
 
-    Returns:
-        Замаскированный номер счета
+    if len(cleaned) < 4:
+        logger.error(f"Номер счёта слишком короткий: {len(cleaned)}")
+        return "Неверный номер счёта"
 
-    Example:
-        >>> get_mask_account("73654108430135874305")
-        '**4305'
-    """
-    if len(account_number) < 4:
-        return account_number
-
-    masked = f"**{account_number[-4:]}"
+    masked = f"**{cleaned[-4:]}"
+    logger.info(f"Номер счёта успешно замаскирован: {masked}")
     return masked

@@ -1,74 +1,74 @@
 """
-Модуль для маскировки номеров карт и счетов.
+Тесты для модуля masks.
 """
 
-import re
-from src.logger_config import setup_logger
-
-# Настраиваем логгер для модуля masks
-logger = setup_logger(__name__, 'masks.log')
+import pytest
+from src.masks import get_mask_card_number, get_mask_account
 
 
-def get_mask_card_number(card_number: str) -> str:
-    """
-    Маскирует номер карты в формате XXXX XX** **** XXXX.
+class TestMaskCardNumber:
+    """Тесты для функции get_mask_card_number."""
 
-    Args:
-        card_number: Номер карты (строка из 16 цифр)
+    def test_valid_card(self):
+        """Тест валидного номера карты."""
+        result = get_mask_card_number("1234567812345678")
+        assert result == "1234 56** **** 5678"
 
-    Returns:
-        Замаскированный номер карты или сообщение об ошибке
-    """
-    logger.debug(f"Маскировка номера карты: {card_number[:4]}****")
+    def test_card_with_spaces(self):
+        """Тест номера карты с пробелами."""
+        result = get_mask_card_number("1234 5678 1234 5678")
+        assert result == "1234 56** **** 5678"
 
-    if not card_number or not isinstance(card_number, str):
-        logger.error("Номер карты отсутствует или не является строкой")
-        return "Неверный номер карты"
+    def test_invalid_length(self):
+        """Тест некорректной длины."""
+        result = get_mask_card_number("123456789")
+        assert result == "Неверный номер карты"
 
-    # Удаляем пробелы
-    cleaned = re.sub(r'\s+', '', card_number)
+    def test_not_digit(self):
+        """Тест с буквами."""
+        result = get_mask_card_number("1234abcd5678efgh")
+        assert result == "Неверный номер карты"
 
-    if not cleaned.isdigit():
-        logger.error(f"Номер карты содержит не цифры: {cleaned[:4]}****")
-        return "Неверный номер карты"
+    def test_empty_string(self):
+        """Тест пустой строки."""
+        result = get_mask_card_number("")
+        assert result == "Неверный номер карты"
 
-    if len(cleaned) != 16:
-        logger.error(f"Некорректная длина номера карты: {len(cleaned)} (ожидается 16)")
-        return "Неверный номер карты"
-
-    # Маскировка: XXXX XX** **** XXXX
-    masked = f"{cleaned[:4]} {cleaned[4:6]}** **** {cleaned[12:]}"
-    logger.info(f"Номер карты успешно замаскирован: {masked}")
-    return masked
+    def test_none_value(self):
+        """Тест None."""
+        result = get_mask_card_number(None)
+        assert result == "Неверный номер карты"
 
 
-def get_mask_account(account_number: str) -> str:
-    """
-    Маскирует номер счёта в формате **XXXX (последние 4 цифры).
+class TestMaskAccount:
+    """Тесты для функции get_mask_account."""
 
-    Args:
-        account_number: Номер счёта (строка)
+    def test_valid_account(self):
+        """Тест валидного номера счёта."""
+        result = get_mask_account("12345678901234567890")
+        assert result == "**7890"
 
-    Returns:
-        Замаскированный номер счёта или сообщение об ошибке
-    """
-    logger.debug(f"Маскировка номера счёта: ****{account_number[-4:] if account_number else 'None'}")
+    def test_account_with_spaces(self):
+        """Тест номера счёта с пробелами."""
+        result = get_mask_account("1234 5678 9012 3456 7890")
+        assert result == "**7890"
 
-    if not account_number or not isinstance(account_number, str):
-        logger.error("Номер счёта отсутствует или не является строкой")
-        return "Неверный номер счёта"
+    def test_short_account(self):
+        """Тест короткого номера счёта."""
+        result = get_mask_account("123")
+        assert result == "Неверный номер счёта"
 
-    # Удаляем пробелы
-    cleaned = re.sub(r'\s+', '', account_number)
+    def test_not_digit(self):
+        """Тест с буквами."""
+        result = get_mask_account("abcd")
+        assert result == "Неверный номер счёта"
 
-    if not cleaned.isdigit():
-        logger.error(f"Номер счёта содержит не цифры: ****{cleaned[-4:] if len(cleaned) >= 4 else cleaned}")
-        return "Неверный номер счёта"
+    def test_empty_string(self):
+        """Тест пустой строки."""
+        result = get_mask_account("")
+        assert result == "Неверный номер счёта"
 
-    if len(cleaned) < 4:
-        logger.error(f"Номер счёта слишком короткий: {len(cleaned)} (минимум 4 символа)")
-        return "Неверный номер счёта"
-
-    masked = f"**{cleaned[-4:]}"
-    logger.info(f"Номер счёта успешно замаскирован: {masked}")
-    return masked
+    def test_none_value(self):
+        """Тест None."""
+        result = get_mask_account(None)
+        assert result == "Неверный номер счёта"
