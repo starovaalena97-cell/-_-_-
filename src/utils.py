@@ -4,7 +4,8 @@
 
 import json
 import os
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 from src.logger_config import setup_logger
 
 logger = setup_logger(__name__, 'utils.log')
