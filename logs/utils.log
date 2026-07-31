@@ -1,0 +1,10 @@
+2026-07-31 16:07:22 - src.utils - DEBUG - Попытка открыть файл: test.json
+2026-07-31 16:07:22 - src.utils - INFO - Файл прочитан: test.json, записей: 1
+2026-07-31 16:07:22 - src.utils - DEBUG - Попытка открыть файл: not_exist.json
+2026-07-31 16:07:22 - src.utils - ERROR - Файл не найден: not_exist.json
+2026-07-31 16:07:22 - src.utils - DEBUG - Попытка открыть файл: empty.json
+2026-07-31 16:07:22 - src.utils - ERROR - Ошибка парсинга JSON: Expecting value: line 1 column 1 (char 0)
+2026-07-31 16:07:22 - src.utils - DEBUG - Попытка открыть файл: invalid.json
+2026-07-31 16:07:22 - src.utils - ERROR - Ошибка парсинга JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+2026-07-31 16:07:22 - src.utils - DEBUG - Попытка открыть файл: not_list.json
+2026-07-31 16:07:22 - src.utils - ERROR - Файл not_list.json содержит не список, а dict
