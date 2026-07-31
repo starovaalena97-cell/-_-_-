@@ -26,3 +26,5 @@ from src.file_reader import read_csv_transactions, read_excel_transactions
 
 transactions_csv = read_csv_transactions('data/transactions.csv')
 transactions_excel = read_excel_transactions('data/transactions_excel.xlsx')
+
+## Поиск и подсчёт операций
